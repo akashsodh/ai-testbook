@@ -5,25 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>टेस्ट - मॉक टेस्ट</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
         <h1 id="test-title">टेस्ट</h1>
     </header>
     <main>
-        <div id="quiz-container">
+        <div id="test-area-container">
+            <aside id="sidebar">
+                <h2>विकल्प</h2>
+                <div class="sidebar-controls">
+                    <label for="font-size-slider">फ़ॉन्ट आकार:</label>
+                    <button id="decrease-font">-</button>
+                    <span id="current-font-size">16px</span>
+                    <button id="increase-font">+</button>
+                </div>
+                <button id="shuffle-questions-btn" class="sidebar-btn">प्रश्न शफल करें</button>
+                <button id="shuffle-options-btn" class="sidebar-btn">विकल्प शफल करें</button>
+                <button id="submit-test-btn-sidebar" class="sidebar-btn">सबमिट टेस्ट</button>
+
+                <h3>प्रश्न नेविगेशन</h3>
+                <div id="question-navigation-table">
+                    </div>
+            </aside>
+
+            <div id="quiz-content">
+                <div id="quiz-container">
+                    <p>प्रश्न लोड हो रहे हैं...</p>
+                </div>
+
+                <div id="question-feedback-live" style="display:none;">
+                    <p>अब तक: <span id="live-correct-answers">0</span> सही, <span id="live-incorrect-answers">0</span> गलत</p>
+                </div>
+
+                <div id="navigation-buttons">
+                    <button id="back-btn" style="display:none;">पिछला (Back)</button>
+                    <button id="next-btn" style="display:none;">अगला (Next)</button>
+                    <button id="clear-option-btn" style="display:none;">विकल्प हटाएं (Clear)</button>
+                </div>
+
+                <div id="result-container" style="display:none;">
+                    <h3>आपका स्कोर: <span id="score"></span></h3>
+                </div>
             </div>
-        <button id="submit-test-btn" style="display:none;">सबमिट टेस्ट</button>
-        <div id="result-container" style="display:none;">
-            <h3>आपका स्कोर: <span id="score"></span></h3>
         </div>
-        <a href="index.html">होम पर वापस जाएं</a>
+        <a href="index.html" id="back-to-home-link">होम पर वापस जाएं</a>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script src="js/test.js"></script>
-
+    <script src="js/test.js"></script>
 </body>
 </html>
