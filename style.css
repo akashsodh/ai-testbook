@@ -210,3 +210,198 @@ main > a:hover {
     text-align: center;
     padding: 20px;
 }
+/* ... (मौजूदा स्टाइल्स) ... */
+
+#test-area-container {
+    display: flex;
+    gap: 20px; /* साइडबार और मुख्य सामग्री के बीच गैप */
+}
+
+#sidebar {
+    width: 250px; /* साइडबार की चौड़ाई */
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    height: fit-content; /* सामग्री के अनुसार ऊंचाई */
+}
+
+#sidebar h2, #sidebar h3 {
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.sidebar-controls {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.sidebar-controls label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.sidebar-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.sidebar-controls button:hover {
+    background-color: #0056b3;
+}
+#current-font-size {
+    display: inline-block;
+    min-width: 40px; /* आकार को स्थिर रखने के लिए */
+    text-align: center;
+}
+
+
+.sidebar-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.sidebar-btn:hover {
+    background-color: #0056b3;
+}
+
+#question-navigation-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); /* रिस्पॉन्सिव ग्रिड */
+    gap: 8px;
+    max-height: 300px; /* यदि बहुत सारे प्रश्न हों तो स्क्रॉल करें */
+    overflow-y: auto;
+    padding-top: 10px;
+}
+
+#question-navigation-table a {
+    display: block;
+    padding: 8px;
+    text-align: center;
+    background-color: #fff;
+    color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#question-navigation-table a:hover,
+#question-navigation-table a.current-q-nav {
+    background-color: #007bff;
+    color: #fff;
+}
+
+#question-navigation-table a.answered {
+    background-color: #e0e0e0; /* उत्तर दिए गए प्रश्न */
+    border-color: #bdbdbd;
+    color: #333;
+}
+#question-navigation-table a.answered.current-q-nav { /* उत्तर दिया गया और वर्तमान */
+    background-color: #0056b3;
+    color: #fff;
+    border-color: #00428a;
+}
+
+
+#quiz-content {
+    flex-grow: 1; /* शेष स्थान ले लो */
+    font-size: 16px; /* बेस फ़ॉन्ट साइज़, JS द्वारा बदला जा सकता है */
+}
+
+/* एक समय पर एक प्रश्न दिखाने के लिए */
+.question-card {
+    display: none; /* डिफ़ॉल्ट रूप से सभी प्रश्न छिपे हुए */
+}
+
+.question-card.active {
+    display: block; /* केवल सक्रिय प्रश्न दिखाएं */
+}
+
+#navigation-buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#navigation-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+#back-btn, #next-btn {
+    background-color: #007bff;
+    color: white;
+}
+#back-btn:hover, #next-btn:hover {
+    background-color: #0056b3;
+}
+
+#clear-option-btn {
+    background-color: #ffc107; /* पीला */
+    color: #212529;
+}
+#clear-option-btn:hover {
+    background-color: #e0a800;
+}
+
+/* लाइव फीडबैक */
+#question-feedback-live {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+#live-correct-answers {
+    color: green;
+    font-weight: bold;
+}
+#live-incorrect-answers {
+    color: red;
+    font-weight: bold;
+}
+
+/* होम लिंक को नीचे खिसकाएं */
+#back-to-home-link {
+    display: block; /* इसे पूरी चौड़ाई लेने दें ताकि मार्जिन ऑटो काम करे */
+    width: fit-content; /* सामग्री के अनुसार चौड़ाई */
+    margin: 30px auto 20px auto; /* टॉप, ऑटो (लेफ्ट/राइट सेंटर), बॉटम */
+}
+
+
+/* छोटे स्क्रीन के लिए मीडिया क्वेरी */
+@media (max-width: 768px) {
+    #test-area-container {
+        flex-direction: column; /* साइडबार को ऊपर ले आएं */
+    }
+
+    #sidebar {
+        width: 100%; /* पूरी चौड़ाई */
+        margin-bottom: 20px;
+    }
+
+    #question-navigation-table {
+        grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); /* छोटे बटन */
+    }
+}
