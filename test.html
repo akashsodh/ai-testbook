@@ -9,21 +9,22 @@
 </head>
 <body>
     <header>
+        <button id="sidebar-toggle-btn"><i class="fas fa-bars"></i></button> {/* */}
         <h1 id="test-title">टेस्ट</h1>
     </header>
     <main>
         <div id="test-area-container">
-            <aside id="sidebar">
-                <h2>विकल्प</h2>
+            <aside id="sidebar" class="sidebar-visible>
+                <h2>Options</h2>
                 <div class="sidebar-controls">
-                    <label for="font-size-slider">फ़ॉन्ट आकार:</label>
+                    <label for="font-size-slider">Change Font Size:</label>
                     <button id="decrease-font">-</button>
                     <span id="current-font-size">16px</span>
                     <button id="increase-font">+</button>
                 </div>
-                <button id="shuffle-questions-btn" class="sidebar-btn">प्रश्न शफल करें</button>
-                <button id="shuffle-options-btn" class="sidebar-btn">विकल्प शफल करें</button>
-                <button id="submit-test-btn-sidebar" class="sidebar-btn">सबमिट टेस्ट</button>
+                <button id="shuffle-questions-btn" class="sidebar-btn">Shuffle Questions</button>
+                <button id="shuffle-options-btn" class="sidebar-btn">Shuffle Options</button>
+                <button id="submit-test-btn-sidebar" class="sidebar-btn">Submit Test</button>
 
                 <h3>प्रश्न नेविगेशन</h3>
                 <div id="question-navigation-table">
