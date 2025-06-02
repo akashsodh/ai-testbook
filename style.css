@@ -405,3 +405,96 @@ main > a:hover {
         grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); /* छोटे बटन */
     }
 }
+
+
+
+/* ... (मौजूदा स्टाइल्स) ... */
+
+header {
+    /* ... अन्य स्टाइल ... */
+    display: flex; /* टॉगल बटन और शीर्षक को एक लाइन में लाने के लिए */
+    align-items: center; /* वर्टिकली सेंटर */
+    position: relative; /* यदि टॉगल बटन को एब्सोल्यूट पोजिशन करना हो */
+}
+
+#sidebar-toggle-btn {
+    background: none;
+    border: none;
+    color: white; /* या हेडर के अनुसार रंग */
+    font-size: 1.5rem; /* आइकन का आकार */
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    margin-right: 10px; /* शीर्षक से थोड़ी दूरी */
+}
+#sidebar-toggle-btn:hover {
+    opacity: 0.8;
+}
+
+
+#test-area-container {
+    display: flex;
+    /* gap: 20px; -- यह अब JS द्वारा नियंत्रित हो सकता है या मार्जिन से */
+}
+
+#sidebar {
+    width: 250px;
+    padding: 20px;
+    background-color: #f1f1f1;
+    border-radius: 0 8px 8px 0; /* यदि बाईं ओर चिपका हो */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    height: calc(100vh - YOUR_HEADER_HEIGHT); /* यदि आप चाहते हैं कि यह पूरी ऊंचाई ले, हेडर की ऊंचाई घटाएं */
+    overflow-y: auto; /* यदि कंटेंट ज्यादा हो */
+    transition: transform 0.3s ease-in-out; /* स्लाइडिंग इफ़ेक्ट के लिए */
+    transform: translateX(0); /* डिफ़ॉल्ट रूप से दृश्यमान */
+}
+
+#sidebar.sidebar-hidden {
+    transform: translateX(-100%); /* साइडबार को बाईं ओर स्लाइड करके छिपाएं */
+    /* या width: 0; padding: 0; overflow: hidden; */
+    /* या display: none; -- यदि ट्रांज़िशन नहीं चाहिए */
+}
+
+#quiz-content {
+    flex-grow: 1;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out; /* साइडबार के लिए जगह बनाने का इफ़ेक्ट */
+    /* margin-left: 0; -- जब साइडबार छिपा हो */
+}
+
+/* वैकल्पिक: जब साइडबार दृश्यमान हो तो quiz-content को थोड़ा धक्का दें */
+/* #sidebar.sidebar-visible + #quiz-content {
+    margin-left: 250px;  -- यह निर्भर करता है कि आप लेआउट कैसे करते हैं
+} */
+
+
+/* प्रश्न कार्ड में सही उत्तर दिखाने के लिए स्टाइल */
+.correct-answer-display {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #e6ffed; /* हल्का हरा बैकग्राउंड */
+    border: 1px solid #b2dfc1;
+    border-radius: 4px;
+    color: #28a745; /* हरा टेक्स्ट */
+    font-weight: bold;
+}
+.correct-answer-display strong {
+    color: #155724; /* थोड़ा गहरा हरा */
+}
+
+/* लेबल के लिए सही/गलत रंग (पहले से हो सकता है, सुनिश्चित करें कि यह ठीक है) */
+.options label.user-answer-correct {
+    background-color: #d4edda !important; /* हरा बैकग्राउंड */
+    border-color: #c3e6cb !important;
+    color: #155724 !important; /* टेक्स्ट का रंग */
+}
+
+.options label.user-answer-incorrect {
+    background-color: #f8d7da !important; /* लाल बैकग्राउंड */
+    border-color: #f5c6cb !important;
+    color: #721c24 !important; /* टेक्स्ट का रंग */
+}
+
+/* अक्षम रेडियो बटन वाले लेबल के लिए थोड़ा फीका रंग */
+.options input[type="radio"]:disabled + span {
+    opacity: 0.7;
+}
