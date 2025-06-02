@@ -1,422 +1,392 @@
-console.log("TEST.JS SCRIPT LOADED AND RUNNING!");
+// [Source: 1] console.log("TEST.JS SCRIPT LOADED AND RUNNING!");
 // आपकी Firebase कॉन्फ़िगरेशन यहाँ डालें (main.js के समान)
 const firebaseConfig = {
     apiKey: "AIzaSyA5MtfhOJkaZQlRTkzSKZuPtq4dmrsg9sc",
     authDomain: "aitestbook.firebaseapp.com",
     projectId: "aitestbook", // Realtime Database के लिए projectId ज़रूरी नहीं, पर SDK के लिए है
     databaseURL: "https://aitestbook-default-rtdb.asia-southeast1.firebasedatabase.app/", // <<--- यह Realtime Database के लिए महत्वपूर्ण है!
-    storageBucket: "aitestbook.firebasestorage.app",
+    storageBucket: "aitestbook.firebasestorage.app", // [Source: 2]
     messagingSenderId: "881340974074",
     appId: "1:881340974074:web:7e355216ae6521e77fda43"
 };
 
-// Firebase को इनिशियलाइज़ करें
+// [Source: 3] // Firebase को इनिशियलाइज़ करें
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-}
+} // [Source: 4]
 // Realtime Database सर्विस को एक्सेस करें
 const rtdb = firebase.database();
 
 const quizContainer = document.getElementById('quiz-container');
 const testTitleElement = document.getElementById('test-title');
-const submitButtonOriginal = document.getElementById('submit-test-btn'); // यह HTML से हटाया जा सकता है या छिपाया जा सकता है
+const submitButtonOriginal = document.getElementById('submit-test-btn'); // [Source: 5] // यह HTML से हटाया जा सकता है या छिपाया जा सकता है
 const submitButtonSidebar = document.getElementById('submit-test-btn-sidebar');
-const resultContainer = document.getElementById('result-container');
+const resultContainer = document.getElementById('result-container'); // [Source: 6]
 const scoreElement = document.getElementById('score');
 
 const backButton = document.getElementById('back-btn');
 const nextButton = document.getElementById('next-btn');
 const clearOptionButton = document.getElementById('clear-option-btn');
-const navigationButtonsContainer = document.getElementById('navigation-buttons');
+const navigationButtonsContainer = document.getElementById('navigation-buttons'); // [Source: 7]
 
 const questionNavigationTable = document.getElementById('question-navigation-table');
-const quizContent = document.getElementById('quiz-content'); // फ़ॉन्ट आकार बदलने के लिए
-const decreaseFontButton = document.getElementById('decrease-font');
-const increaseFontButton = document.getElementById('increase-font');
+const quizContent = document.getElementById('quiz-content'); // [Source: 8]
+const decreaseFontButton = document.getElementById('decrease-font'); // [Source: 8]
+const increaseFontButton = document.getElementById('increase-font'); // [Source: 8]
 const currentFontSizeSpan = document.getElementById('current-font-size');
-const shuffleQuestionsButton = document.getElementById('shuffle-questions-btn');
+const shuffleQuestionsButton = document.getElementById('shuffle-questions-btn'); // [Source: 9]
 const shuffleOptionsButton = document.getElementById('shuffle-options-btn');
 
 const liveFeedbackContainer = document.getElementById('question-feedback-live');
 const liveCorrectAnswersSpan = document.getElementById('live-correct-answers');
 const liveIncorrectAnswersSpan = document.getElementById('live-incorrect-answers');
 
+// --- नए एलिमेंट्स ---
+const sidebar = document.getElementById('sidebar');
+const sidebarToggleButton = document.getElementById('sidebar-toggle-btn');
+// --- ---
 
-let currentQuestions = [];
+let currentQuestions = []; // [Source: 10]
 let userAnswers = []; // उपयोगकर्ताओं के उत्तरों को संग्रहीत करने के लिए
-let currentQuestionIndex = 0;
-let questionsShuffled = false;
-let optionsShuffled = false;
-let baseFontSize = 16; // पिक्सल में
+let currentQuestionIndex = 0; // [Source: 10]
+let questionsShuffled = false; // [Source: 11]
+let optionsShuffled = false; // [Source: 11]
+let baseFontSize = 16; // [Source: 12] // पिक्सल में
 
 // URL से यूनिट आईडी प्राप्त करें
 const urlParams = new URLSearchParams(window.location.search);
-const unitId = urlParams.get('unit');
+const unitId = urlParams.get('unit'); // [Source: 12]
 
-async function loadQuestions(unitId) {
+async function loadQuestions(unitId) { // [Source: 13]
     if (!unitId) {
         quizContainer.innerHTML = "<p>कोई यूनिट चयनित नहीं है। कृपया होम पेज पर वापस जाएं और एक यूनिट चुनें।</p>";
-        return;
+        return; // [Source: 14]
     }
 
     try {
-        const unitRef = rtdb.ref(`tests/${unitId}`);
-        const snapshot = await unitRef.get();
+        const unitRef = rtdb.ref(`tests/${unitId}`); // [Source: 14]
+        const snapshot = await unitRef.get(); // [Source: 15]
 
         if (!snapshot.exists()) {
             quizContainer.innerHTML = "<p>यह टेस्ट यूनिट नहीं मिली।</p>";
-            return;
+            return; // [Source: 16]
         }
 
-        const testData = snapshot.val();
-        testTitleElement.textContent = testData.title || `टेस्ट: ${unitId}`;
-        currentQuestions = testData.questions;
+        const testData = snapshot.val(); // [Source: 16]
+        testTitleElement.textContent = testData.title || `टेस्ट: ${unitId}`; // [Source: 16]
+        currentQuestions = testData.questions; // [Source: 17]
 
         if (!currentQuestions || !Array.isArray(currentQuestions) || currentQuestions.length === 0) {
             quizContainer.innerHTML = "<p>इस यूनिट में कोई प्रश्न उपलब्ध नहीं है या सही फॉर्मेट में नहीं हैं।</p>";
-            return;
+            return; // [Source: 18]
         }
 
-        // उपयोगकर्ता उत्तरों को इनिशियलाइज़ करें
-        userAnswers = new Array(currentQuestions.length).fill(null);
-        currentQuestionIndex = 0; // पहले प्रश्न से शुरू करें
+        userAnswers = new Array(currentQuestions.length).fill(null); // [Source: 18]
+        currentQuestionIndex = 0; // [Source: 19] // पहले प्रश्न से शुरू करें
 
-        if (questionsShuffled) {
+        if (questionsShuffled) { // [Source: 19]
             shuffleArray(currentQuestions);
-        }
-        if (optionsShuffled) {
+        } // [Source: 20]
+        if (optionsShuffled) { // [Source: 20]
             currentQuestions.forEach(q => shuffleArray(q.options));
-        }
+        } // [Source: 21]
 
-        renderAllQuestions(); // सभी प्रश्न कार्ड बनाएं (शुरू में छिपे हुए)
-        displayQuestion(currentQuestionIndex);
-        buildQuestionNavigation();
-        updateNavigationButtons();
-        // submitButtonOriginal.style.display = 'none'; // मूल बटन छिपाएं
-        submitButtonSidebar.style.display = 'block';
-        navigationButtonsContainer.style.display = 'block';
-        liveFeedbackContainer.style.display = 'block'; // लाइव फीडबैक दिखाएं
-        updateLiveFeedback();
+        renderAllQuestions(); // [Source: 21] // सभी प्रश्न कार्ड बनाएं (शुरू में छिपे हुए)
+        displayQuestion(currentQuestionIndex); // [Source: 21]
+        buildQuestionNavigation(); // [Source: 22]
+        updateNavigationButtons(); // [Source: 22]
+        if(submitButtonSidebar) submitButtonSidebar.style.display = 'block'; // [Source: 22]
+        if(navigationButtonsContainer) navigationButtonsContainer.style.display = 'block'; // [Source: 23]
+        if(liveFeedbackContainer) liveFeedbackContainer.style.display = 'block'; // [Source: 23] // लाइव फीडबैक दिखाएं
+        updateLiveFeedback(); // [Source: 23]
 
-
-    } catch (error) {
-        console.error("प्रश्न लोड करने में त्रुटि:", error);
-        quizContainer.innerHTML = "<p>प्रश्न लोड करने में विफल।</p>";
+    } catch (error) { // [Source: 24]
+        console.error("प्रश्न लोड करने में त्रुटि:", error); // [Source: 24]
+        quizContainer.innerHTML = "<p>प्रश्न लोड करने में विफल।</p>"; // [Source: 25]
     }
 }
 
-function shuffleArray(array) {
+function shuffleArray(array) { // [Source: 25]
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        const j = Math.floor(Math.random() * (i + 1)); // [Source: 25]
+        [array[i], array[j]] = [array[j], array[i]]; // [Source: 26]
     }
 }
 
-function renderAllQuestions() {
-    let questionsHtml = '';
-    currentQuestions.forEach((q, index) => {
-        if (q && typeof q.question === 'string' && Array.isArray(q.options)) {
+function renderAllQuestions() { // [Source: 26]
+    let questionsHtml = ''; // [Source: 26]
+    currentQuestions.forEach((q, index) => { // [Source: 27]
+        if (q && typeof q.question === 'string' && Array.isArray(q.options)) { // [Source: 27]
             questionsHtml += `
                 <div class="question-card" id="question-${index}">
                     <p><b>प्रश्न ${index + 1}:</b> ${q.question}</p>
                     <div class="options">
-            `;
-            q.options.forEach((option, i) => {
-                // मान लें कि option एक स्ट्रिंग है
-                const optionValue = typeof option === 'object' && option !== null ? option.text : option; // यदि विकल्प ऑब्जेक्ट हैं
-                const optionDisplay = optionValue;
+            `; // [Source: 28]
+            q.options.forEach((option, i) => { // [Source: 28]
+                const optionValue = typeof option === 'object' && option !== null ? option.text : option; // [Source: 28]
+                const optionDisplay = optionValue; // [Source: 29]
 
                 questionsHtml += `
                         <label>
                             <input type="radio" name="question${index}" value="${optionValue}">
                             <span>${optionDisplay}</span>
                         </label>
-                `;
+                `; // [Source: 30]
             });
             questionsHtml += `
                     </div>
+                    <div class="correct-answer-display" id="correct-answer-${index}" style="display:none;"></div>
                 </div>
-            `;
-        } else {
-            console.warn(`प्रश्न ${index + 1} का फॉर्मेट सही नहीं है:`, q);
-        }
+            `; // [Source: 31]
+        } else { // [Source: 32]
+            console.warn(`प्रश्न ${index + 1} का फॉर्मेट सही नहीं है:`, q); // [Source: 32]
+        } // [Source: 33]
     });
-    quizContainer.innerHTML = questionsHtml;
+    quizContainer.innerHTML = questionsHtml; // [Source: 33]
 
-    // हर प्रश्न के रेडियो बटन में इवेंट लिस्नर जोड़ें ताकि उपयोगकर्ता का उत्तर संग्रहीत किया जा सके
-    currentQuestions.forEach((_, index) => {
-        const radioButtons = document.querySelectorAll(`input[name="question${index}"]`);
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', (event) => {
-                userAnswers[index] = event.target.value;
-                updateQuestionNavigationItemStatus(index);
-                // सही/गलत का लाइव अपडेट (वैकल्पिक, यदि आप हर चयन पर दिखाना चाहते हैं)
-                // updateLiveFeedbackForQuestion(index); // यह फ़ंक्शन बनाना होगा
-                updateLiveFeedback(); // या केवल कुल संख्या अपडेट करें
+    currentQuestions.forEach((_, questionIndex) => { // [Source: 33]
+        const radioButtons = document.querySelectorAll(`input[name="question${questionIndex}"]`); // [Source: 33]
+        radioButtons.forEach(radio => { // [Source: 33]
+            radio.addEventListener('change', (event) => { // [Source: 33]
+                handleOptionSelection(questionIndex, event.target);
             });
         });
-    });
+    }); // [Source: 35]
 }
 
-function displayQuestion(index) {
-    document.querySelectorAll('.question-card').forEach(card => {
-        card.classList.remove('active');
-    });
-    const currentQuestionCard = document.getElementById(`question-${index}`);
-    if (currentQuestionCard) {
-        currentQuestionCard.classList.add('active');
-    }
-    currentQuestionIndex = index;
-    updateNavigationButtons();
-    highlightCurrentQuestionNav();
+function handleOptionSelection(questionIndex, selectedRadio) {
+    if (selectedRadio.disabled) return;
 
-    // यदि प्रश्न का उत्तर पहले ही दिया जा चुका है, तो उसे लोड करें
-    if (userAnswers[index] !== null) {
-        const selectedRadioButton = document.querySelector(`input[name="question${index}"][value="${userAnswers[index]}"]`);
-        if (selectedRadioButton) {
-            selectedRadioButton.checked = true;
+    userAnswers[questionIndex] = selectedRadio.value; // [Source: 35]
+    updateQuestionNavigationItemStatus(questionIndex); // [Source: 34]
+    updateLiveFeedback(); // [Source: 34]
+
+    const questionData = currentQuestions[questionIndex]; // [Source: 35]
+    const optionsContainer = selectedRadio.closest('.options'); // [Source: 35]
+    const allLabelsInQuestion = optionsContainer.querySelectorAll('label'); // [Source: 35]
+    const selectedLabel = selectedRadio.parentElement; // [Source: 35]
+
+    const allRadioButtonsInQuestion = optionsContainer.querySelectorAll(`input[name="question${questionIndex}"]`); // [Source: 35]
+    allRadioButtonsInQuestion.forEach(rb => rb.disabled = true); // [Source: 35]
+
+    allLabelsInQuestion.forEach(label => { // [Source: 35]
+        label.classList.remove('user-answer-correct', 'user-answer-incorrect'); // [Source: 35]
+    });
+
+    if (questionData && typeof questionData.answer === 'string') { // [Source: 35]
+        if (selectedRadio.value === questionData.answer) { // [Source: 35]
+            selectedLabel.classList.add('user-answer-correct'); // [Source: 35]
+        } else { // [Source: 35]
+            selectedLabel.classList.add('user-answer-incorrect'); // [Source: 35]
         }
     }
+
+    const correctAnswerDisplay = document.getElementById(`correct-answer-${questionIndex}`); // [Source: 35]
+    if (correctAnswerDisplay && questionData && questionData.answer) { // [Source: 35]
+        correctAnswerDisplay.innerHTML = `<strong>सही उत्तर:</strong> ${questionData.answer}`; // [Source: 35]
+        correctAnswerDisplay.style.display = 'block'; // [Source: 35]
+    }
+    if(clearOptionButton) clearOptionButton.disabled = true; // क्लियर बटन को अक्षम करें
 }
 
-function updateNavigationButtons() {
-    backButton.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
-    nextButton.style.display = currentQuestionIndex < currentQuestions.length - 1 ? 'inline-block' : 'none';
-    clearOptionButton.style.display = 'inline-block'; // हमेशा दिखाएं जब प्रश्न सक्रिय हो
-}
 
-function buildQuestionNavigation() {
-    let navHtml = '';
-    currentQuestions.forEach((_, index) => {
-        navHtml += `<a href="#" data-qindex="${index}" id="qnav-${index}">${index + 1}</a>`;
+function displayQuestion(index) { // [Source: 35]
+    document.querySelectorAll('.question-card').forEach(card => { // [Source: 35]
+        card.classList.remove('active'); // [Source: 35]
     });
-    questionNavigationTable.innerHTML = navHtml;
+    const currentQuestionCard = document.getElementById(`question-${index}`); // [Source: 36]
+    if (currentQuestionCard) { // [Source: 36]
+        currentQuestionCard.classList.add('active'); // [Source: 36]
+    } // [Source: 37]
+    currentQuestionIndex = index; // [Source: 37]
+    updateNavigationButtons(); // [Source: 37]
+    highlightCurrentQuestionNav(); // [Source: 37]
 
-    document.querySelectorAll('#question-navigation-table a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const qIndex = parseInt(e.target.dataset.qindex);
-            displayQuestion(qIndex);
+    if (userAnswers[index] !== null) { // [Source: 37]
+        const selectedRadioButton = document.querySelector(`input[name="question${index}"][value="${userAnswers[index]}"]`); // [Source: 37]
+        if (selectedRadioButton) { // [Source: 38]
+            selectedRadioButton.checked = true; // [Source: 38]
+            // अगर उत्तर पहले से दिया गया है तो उसे फिर से लॉक और स्टाइल करें
+             // handleOptionSelection(index, selectedRadioButton); // यह एक अनंत लूप बना सकता है यदि disable न हो।
+             // सुनिश्चित करें कि पहले से दिए गए उत्तरों के लिए UI सही से अपडेट हो।
+            const allRadioButtonsInQuestion = document.querySelectorAll(`input[name="question${index}"]`);
+            allRadioButtonsInQuestion.forEach(rb => rb.disabled = true);
+
+            const questionData = currentQuestions[index];
+            const selectedLabel = selectedRadioButton.parentElement;
+            if (selectedLabel && questionData && questionData.answer) {
+                if (selectedRadioButton.value === questionData.answer) {
+                    selectedLabel.classList.add('user-answer-correct');
+                } else {
+                    selectedLabel.classList.add('user-answer-incorrect');
+                }
+                const correctAnswerDisplay = document.getElementById(`correct-answer-${index}`);
+                if (correctAnswerDisplay) {
+                    correctAnswerDisplay.innerHTML = `<strong>सही उत्तर:</strong> ${questionData.answer}`;
+                    correctAnswerDisplay.style.display = 'block';
+                }
+            }
+        } // [Source: 39]
+    } else {
+        // यदि कोई उत्तर नहीं दिया गया है, तो रेडियो बटन सक्षम होने चाहिए
+        const allRadioButtonsInQuestion = document.querySelectorAll(`input[name="question${index}"]`);
+        allRadioButtonsInQuestion.forEach(rb => rb.disabled = false);
+        if(clearOptionButton) clearOptionButton.disabled = false; // क्लियर बटन को सक्षम करें
+        const correctAnswerDisplay = document.getElementById(`correct-answer-${index}`);
+        if(correctAnswerDisplay) correctAnswerDisplay.style.display = 'none';
+    }
+}
+
+function updateNavigationButtons() { // [Source: 39]
+    if(backButton) backButton.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none'; // [Source: 39]
+    if(nextButton) nextButton.style.display = currentQuestionIndex < currentQuestions.length - 1 ? 'inline-block' : 'none'; // [Source: 40]
+    if(clearOptionButton) { // [Source: 40]
+        // क्लियर बटन केवल तभी दिखाएं/सक्षम करें यदि वर्तमान प्रश्न का उत्तर नहीं दिया गया है
+        if (userAnswers[currentQuestionIndex] !== null) {
+            clearOptionButton.style.display = 'inline-block'; // दिखाएँ
+            clearOptionButton.disabled = true; // पर अक्षम
+        } else {
+            clearOptionButton.style.display = 'inline-block'; // दिखाएँ
+            clearOptionButton.disabled = false; // और सक्षम
+        }
+    }
+} // [Source: 41]
+
+function buildQuestionNavigation() { // [Source: 41]
+    let navHtml = ''; // [Source: 41]
+    currentQuestions.forEach((_, index) => { // [Source: 42]
+        navHtml += `<a href="#" data-qindex="${index}" id="qnav-${index}">${index + 1}</a>`; // [Source: 42]
+    });
+    if(questionNavigationTable) questionNavigationTable.innerHTML = navHtml; // [Source: 43]
+
+    document.querySelectorAll('#question-navigation-table a').forEach(link => { // [Source: 43]
+        link.addEventListener('click', (e) => { // [Source: 43]
+            e.preventDefault(); // [Source: 43]
+            const qIndex = parseInt(e.target.dataset.qindex); // [Source: 43]
+            displayQuestion(qIndex); // [Source: 43]
         });
     });
-    highlightCurrentQuestionNav();
+    highlightCurrentQuestionNav(); // [Source: 44]
 }
 
-function updateQuestionNavigationItemStatus(index) {
-    const navLink = document.getElementById(`qnav-${index}`);
-    if (navLink && userAnswers[index] !== null) {
-        navLink.classList.add('answered');
-    } else if (navLink) {
-        navLink.classList.remove('answered');
-    }
+function updateQuestionNavigationItemStatus(index) { // [Source: 44]
+    const navLink = document.getElementById(`qnav-${index}`); // [Source: 44]
+    if (navLink && userAnswers[index] !== null) { // [Source: 45]
+        navLink.classList.add('answered'); // [Source: 45]
+    } else if (navLink) { // [Source: 46]
+        navLink.classList.remove('answered'); // [Source: 46]
+    } // [Source: 47]
 }
 
 
-function highlightCurrentQuestionNav() {
-    document.querySelectorAll('#question-navigation-table a').forEach(link => {
-        link.classList.remove('current-q-nav');
+function highlightCurrentQuestionNav() { // [Source: 47]
+    document.querySelectorAll('#question-navigation-table a').forEach(link => { // [Source: 47]
+        link.classList.remove('current-q-nav'); // [Source: 47]
     });
-    const currentNavLink = document.getElementById(`qnav-${currentQuestionIndex}`);
-    if (currentNavLink) {
-        currentNavLink.classList.add('current-q-nav');
-    }
+    const currentNavLink = document.getElementById(`qnav-${currentQuestionIndex}`); // [Source: 48]
+    if (currentNavLink) { // [Source: 48]
+        currentNavLink.classList.add('current-q-nav'); // [Source: 48]
+    } // [Source: 49]
 }
 
-function calculateScore() {
-    let score = 0;
-    let correctCount = 0;
-    let incorrectCount = 0;
-    currentQuestions.forEach((q, index) => {
-        if (userAnswers[index] !== null && q && typeof q.answer === 'string') {
-            if (userAnswers[index] === q.answer) {
-                score++;
-                correctCount++;
-            } else {
-                incorrectCount++;
+function calculateScore() { // [Source: 49]
+    let score = 0; // [Source: 49]
+    let correctCount = 0; // [Source: 49]
+    let incorrectCount = 0; // [Source: 49]
+    currentQuestions.forEach((q, index) => { // [Source: 50]
+        if (userAnswers[index] !== null && q && typeof q.answer === 'string') { // [Source: 50]
+            if (userAnswers[index] === q.answer) { // [Source: 50]
+                score++; // [Source: 50]
+                correctCount++; // [Source: 50]
+            } else { // [Source: 50]
+                incorrectCount++; // [Source: 51]
             }
         }
     });
-     // लाइव फीडबैक स्पैन भी अपडेट कर सकते हैं यदि आवश्यक हो, हालांकि यह सबमिट के समय है
+    // [Source: 52] // लाइव फीडबैक स्पैन भी अपडेट कर सकते हैं यदि आवश्यक हो, हालांकि यह सबमिट के समय है
     // liveCorrectAnswersSpan.textContent = correctCount;
-    // liveIncorrectAnswersSpan.textContent = incorrectCount;
-    return score;
+    // liveIncorrectAnswersSpan.textContent = incorrectCount; // [Source: 53]
+    return score; // [Source: 53]
 }
 
-function updateLiveFeedback() {
-    let tempCorrect = 0;
-    let tempIncorrect = 0;
-    userAnswers.forEach((answer, index) => {
-        if (answer !== null) { // केवल प्रयास किए गए प्रश्न
-            if (currentQuestions[index] && answer === currentQuestions[index].answer) {
-                tempCorrect++;
-            } else if (currentQuestions[index]) { // यदि प्रश्न मौजूद है और उत्तर गलत है
-                tempIncorrect++;
-            }
+function updateLiveFeedback() { // [Source: 53]
+    let tempCorrect = 0; // [Source: 53]
+    let tempIncorrect = 0; // [Source: 53]
+    userAnswers.forEach((answer, index) => { // [Source: 54]
+        if (answer !== null) { // [Source: 54]
+            if (currentQuestions[index] && answer === currentQuestions[index].answer) { // [Source: 54]
+                tempCorrect++; // [Source: 54]
+            } else if (currentQuestions[index]) { // [Source: 54]
+                tempIncorrect++; // [Source: 54]
+            } // [Source: 55]
         }
     });
-    liveCorrectAnswersSpan.textContent = tempCorrect;
-    liveIncorrectAnswersSpan.textContent = tempIncorrect;
+    if(liveCorrectAnswersSpan) liveCorrectAnswersSpan.textContent = tempCorrect; // [Source: 56]
+    if(liveIncorrectAnswersSpan) liveIncorrectAnswersSpan.textContent = tempIncorrect; // [Source: 56]
 }
 
 
-nextButton.addEventListener('click', () => {
-    if (currentQuestionIndex < currentQuestions.length - 1) {
-        displayQuestion(currentQuestionIndex + 1);
+if(nextButton) nextButton.addEventListener('click', () => { // [Source: 56]
+    if (currentQuestionIndex < currentQuestions.length - 1) { // [Source: 56]
+        displayQuestion(currentQuestionIndex + 1); // [Source: 56]
+    }
+});
+if(backButton) backButton.addEventListener('click', () => { // [Source: 57]
+    if (currentQuestionIndex > 0) { // [Source: 57]
+        displayQuestion(currentQuestionIndex - 1); // [Source: 57]
     }
 });
 
-backButton.addEventListener('click', () => {
-    if (currentQuestionIndex > 0) {
-        displayQuestion(currentQuestionIndex - 1);
-    }
-});
-
-clearOptionButton.addEventListener('click', () => {
-    const radioButtons = document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`);
-    radioButtons.forEach(radio => radio.checked = false);
-    userAnswers[currentQuestionIndex] = null;
-    updateQuestionNavigationItemStatus(currentQuestionIndex);
-    // यदि लाइव रंग संकेत का उपयोग कर रहे हैं, तो उसे भी साफ़ करें
-    const currentLabels = document.querySelectorAll(`#question-${currentQuestionIndex} .options label`);
-    currentLabels.forEach(label => {
-        label.classList.remove('user-answer-correct', 'user-answer-incorrect');
-    });
-    updateLiveFeedback(); // काउंटर अपडेट करें
-});
-
-submitButtonSidebar.addEventListener('click', () => {
-    const totalScore = calculateScore();
-    scoreElement.textContent = `${totalScore} / ${currentQuestions.length}`;
-    resultContainer.style.display = 'block';
-    submitButtonSidebar.style.display = 'none'; // साइडबार वाला बटन छिपाएं
-    navigationButtonsContainer.style.display = 'none'; // नेविगेशन बटन छिपाएं
-    liveFeedbackContainer.style.display = 'none'; // लाइव फीडबैक छिपाएं
-
-    // साइडबार के नियंत्रणों को अक्षम करें
-    decreaseFontButton.disabled = true;
-    increaseFontButton.disabled = true;
-    shuffleQuestionsButton.disabled = true;
-    shuffleOptionsButton.disabled = true;
-    document.querySelectorAll('#question-navigation-table a').forEach(link => link.style.pointerEvents = 'none');
-
-
-    currentQuestions.forEach((q, index) => {
-        const questionCard = document.getElementById(`question-${index}`);
-        if (!questionCard) return;
-
-        // प्रश्न कार्ड को फिर से सक्रिय करें ताकि वह दिखे यदि वह छिपा हुआ था
-        // (हालांकि, आदर्श रूप से, सबमिट पर सभी प्रश्न एक साथ स्क्रॉल करने योग्य सूची में दिखाए जा सकते हैं)
-        // या, उपयोगकर्ता को प्रत्येक प्रश्न पर नेविगेट करने दें और फीडबैक देखें
-        if(!questionCard.classList.contains('active')) {
-            // यदि आप चाहते हैं कि सभी प्रश्न एक साथ दिखें, तो नीचे दी गई लाइन को हटा दें
-            // और display: block को .question-card पर CSS के माध्यम से सेट करें
-             // questionCard.classList.add('active'); // या सभी को एक साथ दिखाएं
-        }
-
-
-        const correctAnswerElement = document.createElement('p');
-        correctAnswerElement.innerHTML = `<b>सही उत्तर:</b> ${q.answer || 'उपलब्ध नहीं'}`;
-        correctAnswerElement.classList.add('correct-answer-text');
-
-        const optionsContainer = questionCard.querySelector('.options');
-        if (optionsContainer) { // सुनिश्चित करें कि यह मौजूद है
-            const existingFeedback = optionsContainer.nextElementSibling;
-            // यदि पहले से ही 'correct-answer-text' वाला p है, तो उसे न जोड़ें
-            if (!existingFeedback || !existingFeedback.classList.contains('correct-answer-text')) {
-                optionsContainer.insertAdjacentElement('afterend', correctAnswerElement);
-            }
-        }
-
-
-        const selectedOptionValue = userAnswers[index];
-        const radioInputs = questionCard.querySelectorAll(`input[name="question${index}"]`);
-
-        radioInputs.forEach(input => {
-            input.disabled = true;
-            const parentLabel = input.parentElement;
-            if (parentLabel) {
-                parentLabel.classList.remove('user-answer-correct', 'user-answer-incorrect'); // पुरानी क्लासेस हटाएं
-                if (selectedOptionValue === input.value) { // यह उपयोगकर्ता का चुना हुआ विकल्प है
-                    if (q.answer && selectedOptionValue === q.answer) {
-                        parentLabel.classList.add('user-answer-correct');
-                    } else if (q.answer) {
-                        parentLabel.classList.add('user-answer-incorrect');
-                    }
-                }
-                // सही उत्तर को भी हाइलाइट करें यदि वह चुना नहीं गया था
-                else if (input.value === q.answer) {
-                     // parentLabel.classList.add('force-correct-highlight'); // एक नई क्लास बना सकते हैं
-                     // या सही उत्तर वाले लेबल को विशेष रूप से स्टाइल करें
-                }
-            }
+if(clearOptionButton) clearOptionButton.addEventListener('click', () => { // [Source: 58]
+    // यह सुनिश्चित करें कि clearOptionButton का लॉजिक handleOptionSelection और displayQuestion के साथ सिंक में हो
+    // यदि उत्तर लॉक है, तो क्लियर नहीं होना चाहिए।
+    if (userAnswers[currentQuestionIndex] === null) { // केवल तभी साफ़ करें यदि कोई उत्तर चयनित नहीं (या पहले से साफ़ है)
+        const radioButtons = document.querySelectorAll(`input[name="question${currentQuestionIndex}"]`); // [Source: 58]
+        radioButtons.forEach(radio => radio.checked = false); // [Source: 58]
+        // userAnswers[currentQuestionIndex] = null; // यह पहले से null होना चाहिए
+        updateQuestionNavigationItemStatus(currentQuestionIndex); // [Source: 58]
+        const currentLabels = document.querySelectorAll(`#question-${currentQuestionIndex} .options label`); // [Source: 58]
+        currentLabels.forEach(label => { // [Source: 58]
+            label.classList.remove('user-answer-correct', 'user-answer-incorrect'); // [Source: 58]
         });
-    });
-    // परिणाम दिखाने के बाद पहले प्रश्न पर स्क्रॉल करें (वैकल्पिक)
-    // displayQuestion(0); // या परिणाम कंटेनर पर स्क्रॉल करें
-    resultContainer.scrollIntoView({ behavior: 'smooth' });
-});
-
-
-// फ़ॉन्ट आकार नियंत्रण
-increaseFontButton.addEventListener('click', () => {
-    if (baseFontSize < 24) { // अधिकतम सीमा
-        baseFontSize += 2;
-        quizContent.style.fontSize = `${baseFontSize}px`;
-        currentFontSizeSpan.textContent = `${baseFontSize}px`;
+        const correctAnswerDisplay = document.getElementById(`correct-answer-${currentQuestionIndex}`); // [Source: 58]
+        if(correctAnswerDisplay) { // [Source: 58]
+            correctAnswerDisplay.style.display = 'none'; // [Source: 58]
+            correctAnswerDisplay.innerHTML = ''; // [Source: 58]
+        }
+        updateLiveFeedback(); // [Source: 58]
+    } else {
+        alert("उत्तर पहले ही दिया जा चुका है और लॉक है।");
     }
 });
 
-decreaseFontButton.addEventListener('click', () => {
-    if (baseFontSize > 12) { // न्यूनतम सीमा
-        baseFontSize -= 2;
-        quizContent.style.fontSize = `${baseFontSize}px`;
-        currentFontSizeSpan.textContent = `${baseFontSize}px`;
-    }
-});
+if(submitButtonSidebar) submitButtonSidebar.addEventListener('click', () => { // [Source: 59]
+    const totalScore = calculateScore(); // [Source: 59]
+    if(scoreElement) scoreElement.textContent = `${totalScore} / ${currentQuestions.length}`; // [Source: 59]
+    if(resultContainer) resultContainer.style.display = 'block'; // [Source: 59]
+    if(submitButtonSidebar) submitButtonSidebar.style.display = 'none'; // [Source: 59]
+    if(navigationButtonsContainer) navigationButtonsContainer.style.display = 'none'; // [Source: 59]
+    if(liveFeedbackContainer) liveFeedbackContainer.style.display = 'none'; // [Source: 59]
 
-// शफल प्रश्न
-shuffleQuestionsButton.addEventListener('click', () => {
-    if (confirm("क्या आप प्रश्नों को शफल करना चाहते हैं? आपकी वर्तमान प्रगति रीसेट हो जाएगी।")) {
-        questionsShuffled = true;
-        optionsShuffled = false; // या इसे उपयोगकर्ता की पसंद पर छोड़ दें
-        resetQuizStateAndReload();
-    }
-});
+    if(decreaseFontButton) decreaseFontButton.disabled = true; // [Source: 59]
+    if(increaseFontButton) increaseFontButton.disabled = true; // [Source: 59]
+    if(shuffleQuestionsButton) shuffleQuestionsButton.disabled = true; // [Source: 59]
+    if(shuffleOptionsButton) shuffleOptionsButton.disabled = true; // [Source: 59]
+    document.querySelectorAll('#question-navigation-table a').forEach(link => link.style.pointerEvents = 'none'); // [Source: 59]
 
-// शफल विकल्प
-shuffleOptionsButton.addEventListener('click', () => {
-    if (confirm("क्या आप विकल्पों को शफल करना चाहते हैं? आपकी वर्तमान प्रगति रीसेट हो जाएगी।")) {
-        optionsShuffled = true;
-        // questionsShuffled = false; // या इसे उपयोगकर्ता की पसंद पर छोड़ दें
-        resetQuizStateAndReload();
-    }
-});
+    currentQuestions.forEach((q, index) => { // [Source: 60]
+        const questionCard = document.getElementById(`question-${index}`); // [Source: 60]
+        if (!questionCard) return; // [Source: 60]
 
-function resetQuizStateAndReload() {
-    currentQuestionIndex = 0;
-    userAnswers = [];
-    quizContainer.innerHTML = '<p>प्रश्न पुनः लोड हो रहे हैं...</p>';
-    resultContainer.style.display = 'none';
-    liveCorrectAnswersSpan.textContent = '0';
-    liveIncorrectAnswersSpan.textContent = '0';
-    // सबमिट बटन और अन्य नियंत्रणों को रीसेट करें
-    submitButtonSidebar.style.display = 'block';
-    navigationButtonsContainer.style.display = 'block';
-    liveFeedbackContainer.style.display = 'block';
-    decreaseFontButton.disabled = false;
-    increaseFontButton.disabled = false;
-    shuffleQuestionsButton.disabled = false;
-    shuffleOptionsButton.disabled = false;
-
-    loadQuestions(unitId);
-}
+        if(!questionCard.classList.contains('active')) { // [Source: 61]
+             // questionCard.classList.add('active'); // [Source: 61]
+        } // [Source: 62]
 
 
-// पेज लोड होने पर प्रश्न लोड करें
-window.onload = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const unitId = urlParams.get('unit');
-    console.log("WINDOW ONLOAD - CALLING loadQuestions with unitId:", unitId);
-    loadQuestions(unitId);
-    currentFontSizeSpan.textContent = `${baseFontSize}px`; // प्रारंभिक फ़ॉन्ट आकार दिखाएं
-};
+        const correctAnswerElement = document.createElement('p'); // [Source: 62]
+        correctAnswerElement.innerHTML = `<b>सही उत्तर:</b> ${q.answer || 'उपलब्ध नहीं'}`; // [Source: 63]
+        correctAnswerElement.classList.add('correct-answer-text'); // [Source: 63]
+
+        const optionsContainer = questionCard.querySelector('.options'); // [Source: 63]
+        if (optionsContainer) { // [Source: 64]
+            // सही उत्तर पहले से ही handleOptionSelecti
