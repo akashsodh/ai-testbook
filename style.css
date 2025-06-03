@@ -1,0 +1,962 @@
+/* style.css (सुधारों के साथ) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Poppins:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  /* Define CSS Variables for easier theme management */
+  --primary-color: #007bff; /* Blue */
+  --secondary-color: #6c757d; /* Gray */
+  --accent-color: #28a745; /* Green */
+  --danger-color: #dc3545; /* Red */
+  --warning-color: #ffc107; /* Yellow */
+  --background-light: #f8f9fa; /* Light Gray */
+  --background-dark: #343a40; /* Dark Gray */
+  --card-background: #fff;
+  --border-color: #e0e0e0;
+  --text-color: #343a40;
+  --light-text-color: #fff;
+  --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+}
+
+body {
+  font-family: "Poppins", "Roboto", "Noto Sans Devanagari", Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-light);
+  color: var(--text-color);
+  min-height: 100vh; /* Ensure body takes full viewport height */
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: linear-gradient(to right, #0056b3, var(--primary-color)); /* Gradient background */
+  color: var(--light-text-color);
+  text-align: center;
+  padding: 1rem 20px;
+  box-shadow: var(--shadow-medium);
+  display: flex; /* Aligns items in a row */
+  align-items: center; /* Vertically centers items */
+  position: sticky; /* Sticky header */
+  top: 0;
+  z-index: 1000;
+  justify-content: space-between; /* Space out content */
+  position: relative; /* Make header a positioning context for the toggle button */
+  overflow: hidden; /* Prevent content from flowing outside */
+  padding-left: 60px; /* Add padding for the toggle button */
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem; /* Increased font size */
+  font-weight: 700; /* Bold */
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  flex-grow: 1; /* Allows title to take available space */
+  text-align: center; /* Center title */
+}
+
+/* Auth Status in Header */
+#auth-status {
+    display: flex;
+    align-items: center;
+    margin-right: 10px; /* Slightly less margin on the right */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    justify-content: flex-end; /* Align items to the end when wrapped */
+    max-width: 180px; /* Limit width to force wrapping on smaller screens/long emails */
+    text-align: right; /* Align text inside if it wraps */
+    gap: 5px; /* Added gap between items within auth-status */
+}
+
+#auth-status span#user-display {
+    color: var(--light-text-color);
+    white-space: nowrap; /* Prevent email from breaking line unless forced by flex-wrap */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis for long emails */
+    max-width: 100px; /* Limit email width */
+    display: block; /* To apply max-width and ellipsis */
+    margin-right: 0; /* No explicit margin here due to gap */
+}
+
+#auth-status #auth-button {
+    margin-left: 0; /* No explicit margin here due to gap */
+}
+
+#user-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    border: 2px solid var(--light-text-color);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease-in-out;
+}
+#user-profile-pic:hover {
+    transform: scale(1.08);
+}
+
+/* Sidebar Toggle Button */
+#sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1001;
+  transition: transform 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+
+/* Sidebar is open, shift the button to the right */
+body.sidebar-open #sidebar-toggle-btn {
+    left: 280px; /* Shift by sidebar width when sidebar is open */
+}
+
+
+main {
+  flex-grow: 1; /* Allow main content to take remaining space */
+  max-width: 1200px; /* Max width for content */
+  margin: 20px auto; /* Center main content */
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Space between sections */
+}
+
+h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 2rem; /* Larger heading */
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 10px;
+}
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
+}
+
+#test-units-container .unit-card,
+.question-card,
+.purchased-card { /* Apply to purchased cards too */
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  padding: 25px; /* Consistent padding */
+  margin-bottom: 20px; /* Space between cards in quizzes/library */
+}
+
+#test-units-container {
+    display: grid; /* Grid for test units */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px; /* Spacing between grid items */
+}
+
+#test-units-container .unit-card:hover,
+.question-card:hover,
+.purchased-card:hover { /* Apply to purchased cards too */
+  transform: translateY(-5px); /* More pronounced lift */
+  box-shadow: var(--shadow-medium); /* Stronger shadow */
+}
+
+#test-units-container .unit-card h3,
+.purchased-card h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+#test-units-container .unit-card p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 1.2rem;
+}
+
+
+/* General Buttons */
+.sidebar-btn,
+.header-auth-btn,
+#submit-test-btn,
+#navigation-buttons button,
+.view-test-details-btn,
+.buy-test-btn,
+.google-btn,
+.start-test-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    text-decoration: none; /* For anchor buttons */
+    display: inline-flex; /* For icons */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between text and icon */
+}
+
+.sidebar-btn:hover,
+.header-auth-btn:hover,
+#submit-test-btn:hover,
+#navigation-buttons button:hover,
+.view-test-details-btn:hover,
+.buy-test-btn:hover,
+.google-btn:hover,
+.start-test-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.sidebar-btn:active,
+.header-auth-btn:active,
+#submit-test-btn:active,
+#navigation-buttons button:active,
+.view-test-details-btn:active,
+.buy-test-btn:active,
+.google-btn:active,
+.start-test-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Specific Button Colors */
+.header-auth-btn {
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+}
+.header-auth-btn.logout {
+    background-color: var(--danger-color);
+}
+#submit-test-btn, #submit-test-btn-sidebar {
+    background-color: var(--accent-color);
+    color: var(--light-text-color);
+}
+#back-btn, #next-btn {
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+}
+#clear-option-btn {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+}
+#apply-referral-btn {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+}
+.view-test-details-btn {
+    background-color: var(--secondary-color);
+    color: var(--light-text-color);
+}
+.buy-test-btn {
+    background-color: #17a2b8; /* Info blue, can be a variable */
+    color: var(--light-text-color);
+}
+.google-btn {
+    background-color: #db4437; /* Google Red */
+    color: white;
+}
+.start-test-btn {
+    background: var(--accent-color);
+    color: var(--light-text-color);
+}
+
+/* Quiz Options */
+.options label {
+  display: block;
+  margin-bottom: 0.85rem; /* Slightly more space */
+  padding: 1rem; /* More padding */
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  background-color: var(--card-background);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.options label:hover {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow on hover */
+}
+
+.options input[type="radio"] {
+  margin-right: 15px; /* More space */
+  vertical-align: middle;
+  transform: scale(1.3); /* Slightly larger radio button */
+  accent-color: var(--primary-color); /* Style radio button itself */
+}
+
+/* Results */
+#result-container {
+  margin-top: 30px;
+  padding: 30px; /* More padding */
+  background-color: #eaf6ff; /* Lighter blue */
+  border-radius: var(--border-radius);
+  text-align: center;
+  border: 1px solid #c2e0ff;
+  box-shadow: var(--shadow-light);
+}
+
+#result-container h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+#score {
+  font-weight: 700;
+  font-size: 2.5rem; /* Larger score */
+  color: var(--accent-color);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Home Link */
+main > a#back-to-home-link { /* More specific selector */
+  display: block;
+  width: fit-content;
+  margin: 30px auto 20px auto;
+  padding: 12px 25px;
+  background-color: var(--secondary-color);
+  color: var(--light-text-color);
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  box-shadow: var(--shadow-light);
+}
+
+main > a#back-to-home-link:hover {
+  background-color: #545b62;
+}
+
+/* Answer Feedback */
+.correct-answer-text {
+  padding-top: 15px;
+  font-weight: bold;
+  color: var(--accent-color);
+  font-size: 1rem;
+  border-top: 1px dashed #eee;
+  margin-top: 20px;
+}
+
+.correct-answer-display {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #d4edda; /* Success light green */
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  color: #155724; /* Success dark green */
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+.correct-answer-display strong {
+  color: #0f5132;
+}
+
+/* Option Label Feedback */
+.options label.user-answer-correct {
+  background-color: #d4edda !important;
+  border-color: #a3cfbb !important;
+  color: #155724 !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 8px rgba(40,167,69,0.3) !important; /* Green glow */
+}
+
+.options label.user-answer-incorrect {
+  background-color: #f8d7da !important;
+  border-color: #f5c6cb !important;
+  color: #721c24 !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 8px rgba(220,53,69,0.3) !important; /* Red glow */
+}
+
+.options label.highlight-correct-answer {
+  background-color: #e2f2e5 !important; /* Lighter green for correct one */
+  border-color: #b2dfc1 !important;
+  color: #28a745 !important;
+  font-weight: bold !important;
+  box-shadow: 0 0 8px rgba(40,167,69,0.2) !important; /* Subtle green glow */
+}
+
+/* Disabled Radio Button */
+.options input[type="radio"]:disabled + span {
+  opacity: 0.7;
+}
+
+/* Messages */
+#test-units-container p,
+#quiz-container p,
+#my-library-container p { /* Apply to library messages */
+  font-size: 1.1rem;
+  color: #555;
+  text-align: center;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 280px; /* Slightly wider */
+  padding: 25px 20px; /* Increased top/bottom padding */
+  background: linear-gradient(to bottom, #2b0057, #5c00a0); /* Deeper, richer gradient */
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  box-shadow: 5px 0 20px rgba(0,0,0,0.3); /* Stronger shadow */
+  height: 100vh; /* Full viewport height */
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transform: translateX(0);
+  position: fixed;
+  top: 0; /* Align to top of viewport */
+  left: 0;
+  z-index: 999; /* Below toggle button */
+  color: var(--light-text-color);
+  padding-top: 80px; /* Space for header content + padding */
+}
+
+#sidebar.sidebar-hidden {
+  transform: translateX(-100%);
+}
+
+#sidebar h2,
+#sidebar h3 {
+  color: #a7d9ff; /* Lighter blue for sidebar titles */
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.25); /* Slightly stronger separator */
+  font-size: 1.6rem; /* h2 for sidebar */
+}
+
+#sidebar h3 {
+  font-size: 1.4rem; /* h3 for sidebar */
+  margin-top: 30px; /* More space */
+}
+
+.sidebar-controls {
+  margin-bottom: 25px; /* More space */
+  text-align: center;
+  padding: 20px; /* More padding */
+  background-color: rgba(255,255,255,0.15); /* Slightly more translucent background */
+  border-radius: 8px; /* Consistent border-radius */
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); /* Inner shadow */
+}
+
+.sidebar-controls label {
+  margin-bottom: 12px; /* More space */
+  font-weight: 500;
+  color: #e0e0e0; /* Slightly off-white for labels */
+}
+
+#current-font-size {
+  min-width: 55px; /* Wider */
+  padding: 10px 15px; /* More padding */
+  background-color: var(--light-text-color);
+  color: var(--primary-color);
+  font-weight: 700; /* Bolder */
+}
+
+.sidebar-controls button {
+  padding: 10px 18px; /* More padding */
+  margin: 0 6px;
+  background-color: var(--primary-color);
+  color: var(--light-text-color);
+  border-radius: 5px;
+}
+.sidebar-controls button:hover {
+  background-color: #0069d9;
+}
+
+.sidebar-btn {
+  display: block; /* Ensure it's a block for margin: auto */
+  width: calc(100% - 40px); /* Adjust for horizontal padding + margin */
+  padding: 14px 20px; /* More padding */
+  margin: 15px auto; /* Center buttons horizontally */
+  background-color: #3f51b5; /* A distinct blue-purple shade */
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.sidebar-btn:hover {
+  background-color: #303f9f;
+  transform: translateY(-4px); /* More pronounced lift */
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+#submit-test-btn-sidebar {
+  background-color: var(--accent-color);
+}
+#submit-test-btn-sidebar:hover {
+  background-color: #218838;
+}
+
+#question-navigation-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Larger buttons */
+  gap: 15px; /* More gap */
+  max-height: 400px; /* Taller */
+  overflow-y: auto;
+  padding: 20px; /* More padding */
+  background-color: rgba(255,255,255,0.18); /* More transparent background */
+  border-radius: 8px;
+  box-shadow: inset 0 1px 5px rgba(0,0,0,0.1);
+}
+
+#question-navigation-table a {
+  padding: 12px; /* More padding */
+  background-color: rgba(255,255,255,0.2); /* Even more transparent */
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 6px; /* Slightly larger border-radius */
+  font-weight: 600; /* Bolder */
+}
+
+#question-navigation-table a:hover,
+#question-navigation-table a.current-q-nav {
+  background-color: var(--primary-color);
+  color: var(--light-text-color);
+  transform: scale(1.1); /* More zoom effect */
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.8); /* Stronger glow */
+}
+
+#question-navigation-table a.answered {
+  background-color: #4CAF50; /* Darker green for answered */
+  border-color: #2e7d32;
+  color: var(--light-text-color);
+}
+#question-navigation-table a.answered:hover {
+  background-color: #388e3c;
+  border-color: #1b5e20;
+}
+#question-navigation-table a.answered.current-q-nav {
+  background-color: #0056b3;
+  color: #fff;
+  border-color: #00428a;
+}
+
+/* Quiz Content */
+#quiz-content {
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.question-card {
+  display: none;
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+  padding: 30px; /* More padding */
+}
+
+.question-card.active {
+  display: block;
+}
+
+.question-card p b {
+  color: var(--primary-color);
+  font-size: 1.2rem; /* Slightly larger question number */
+}
+.question-card p {
+    font-size: 1.1rem; /* Base question font size, will be scaled by JS */
+    line-height: 1.8;
+}
+
+
+#navigation-buttons {
+  margin-top: 30px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* Space between navigation buttons */
+}
+
+#question-feedback-live {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #eaf6ff; /* Light blue */
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #c2e0ff;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+#live-correct-answers {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+#live-incorrect-answers {
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+/* Auth Modal Styles (refined) */
+.modal {
+    background-color: rgba(0,0,0,0.7); /* Darker overlay */
+    backdrop-filter: blur(5px); /* Blurred background */
+    display: flex; /* Use flexbox for centering */
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Remove padding for flex centering */
+    position: fixed; /* Fixed positioning */
+    z-index: 1001; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    padding: 40px; /* More padding */
+    width: 90%;
+    max-width: 450px; /* Slightly wider modal */
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4); /* Stronger shadow */
+    animation: fadeIn 0.3s ease-out; /* Fade in animation */
+    position: relative; /* For close button positioning */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+    border-bottom: none; /* Remove underline from modal title */
+    padding-bottom: 0;
+}
+.modal-content h2::after {
+    display: none;
+}
+
+.modal-content input {
+    margin-bottom: 15px;
+    padding: 14px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    width: calc(100% - 24px); /* Account for padding */
+    box-sizing: border-box;
+}
+
+.modal-content button[type="submit"],
+.google-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+}
+
+.auth-toggle-text {
+    margin-top: 25px;
+}
+
+/* Close button for modals */
+.modal-content .close-button {
+    color: #aaa;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content .close-button:hover,
+.modal-content .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* Login Prompt */
+#login-prompt {
+    margin-top: 30px;
+    padding: 25px;
+    background-color: #fff3cd; /* Warning light yellow */
+    border: 1px solid #ffeeba;
+    border-radius: var(--border-radius);
+    text-align: center;
+    color: #664d03; /* Warning dark yellow */
+    box-shadow: var(--shadow-light);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+#login-prompt h3 {
+    margin-top: 0;
+    color: #856404;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+#login-prompt a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+#login-prompt a:hover {
+    text-decoration: underline;
+}
+
+
+/* My Library Section */
+#my-library-container {
+    margin-top: 30px;
+    padding: 25px; /* More padding */
+    background-color: #eaf6ff;
+    border-radius: var(--border-radius);
+    border: 1px solid #c2e0ff;
+    box-shadow: var(--shadow-light);
+}
+
+#purchased-tests-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px; /* Consistent gap */
+    margin-top: 25px;
+}
+
+.purchased-card {
+    padding: 25px;
+    text-align: center;
+    box-shadow: var(--shadow-light);
+}
+
+.purchased-card h3 {
+    font-size: 1.4rem;
+}
+
+.purchased-card p {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.purchased-card .start-test-btn {
+    padding: 0.8rem 1.5rem;
+    background: var(--accent-color);
+    color: var(--light-text-color);
+}
+
+/* Referral Code Section */
+.referral-code-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* More gap */
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f0f0f0; /* Light gray */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 1px 5px rgba(0,0,0,0.05);
+}
+
+#referral-code-input {
+    flex-grow: 1;
+    padding: 12px 18px; /* More padding */
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1.05rem;
+    max-width: 300px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#apply-referral-btn {
+    padding: 12px 25px;
+    background-color: #ffc107;
+    color: var(--text-color);
+}
+
+#referral-message {
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+/* Add style for the new buttons in loadTestUnits */
+.view-test-details-btn, .buy-test-btn {
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    font-size: 0.9rem;
+    margin: 5px; /* Spacing between buttons */
+}
+
+.view-test-details-btn {
+    background-color: var(--secondary-color);
+    color: var(--light-text-color);
+}
+.view-test-details-btn:hover {
+    background-color: #5a6268;
+}
+
+.buy-test-btn {
+    background-color: #17a2b8; /* Info blue */
+    color: var(--light-text-color);
+}
+.buy-test-btn:hover {
+    background-color: #138496;
+}
+
+/* Profile Modal specific styles */
+#profile-modal .modal-content {
+    /* Uses general modal-content styles, can override if needed */
+}
+
+#profile-pic-modal {
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 0 8px rgba(0,123,255,0.4);
+    margin: 0 auto 15px auto; /* Center image */
+    display: block; /* To apply auto margin */
+}
+
+#profile-details p {
+    text-align: left;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: transparent; /* Override message style */
+    padding: 0;
+}
+#profile-details strong {
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  header {
+    padding: 1rem 15px;
+  }
+  header h1 {
+    font-size: 1.6rem;
+  }
+  main {
+    padding: 0 15px;
+    margin: 15px auto;
+  }
+  h2 {
+    font-size: 1.8rem;
+  }
+  #auth-status {
+    max-width: 100%; /* Allow full width on smaller screens */
+    justify-content: flex-end; /* Align to the right */
+    flex-wrap: wrap; /* Ensure wrapping */
+  }
+  #auth-status span#user-display {
+    max-width: 100px; /* Adjust as needed */
+    font-size: 0.9em; /* Smaller font on mobile */
+    text-align: right; /* Ensure text is right-aligned even if wrapped */
+    flex-basis: 100%; /* Take full width to allow button to wrap below */
+    margin-bottom: 5px; /* Space between email and button */
+  }
+  #auth-status #auth-button {
+    padding: 6px 10px; /* Smaller padding for button */
+    font-size: 0.8em; /* Smaller font for button */
+    margin-left: 0; /* Reset margin */
+  }
+  #user-profile-pic {
+    order: -1; /* Move profile pic to the left on small screens */
+    margin-right: 10px; /* Space from email/button */
+  }
+
+  #test-units-container {
+    grid-template-columns: 1fr; /* Single column on small screens */
+  }
+  .modal-content {
+    padding: 30px;
+    width: 95%;
+  }
+  #sidebar {
+    width: 250px; /* Slightly narrower sidebar on small screens */
+    height: calc(100vh - 0px); /* Full height on mobile */
+    top: 0; /* Align to top */
+    padding-top: 70px; /* Adjust padding for smaller header on mobile */
+  }
+  body.sidebar-open #sidebar-toggle-btn {
+    left: 250px; /* Shift by sidebar width on mobile */
+  }
+  #sidebar-toggle-btn {
+    font-size: 1.6rem; /* Smaller toggle button on mobile */
+  }
+  .question-card {
+    padding: 20px;
+  }
+  .options label {
+    padding: 0.8rem;
+  }
+  #navigation-buttons {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px;
+  }
+  #navigation-buttons button {
+    width: 100%;
+    margin: 0;
+  }
+  .referral-code-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #referral-code-input {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.4rem;
+  }
+  h2 {
+    font-size: 1.6rem;
+  }
+  .modal-content {
+    padding: 20px;
+  }
+  .modal-content button {
+    font-size: 1rem;
+  }
+  .sidebar-btn {
+    font-size: 0.95rem;
+  }
+  #question-navigation-table {
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 8px;
+  }
+  .question-card p {
+    font-size: 1rem;
+  }
+  .options label {
+    padding: 0.7rem;
+  }
+}
