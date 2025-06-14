@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>क्विज़ - मोड चुनें</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="homepage.style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>राजस्थान: इतिहास, कला और संस्कृति</h1>
+            <p>अपनी तैयारी का आकलन करने के लिए एक मोड चुनें</p>
+        </header>
+
+        <main class="mode-selector">
+            <a href="quiz.html?mode=practice" class="mode-card">
+                <div class="icon-container practice">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h2>प्रैक्टिस मोड</h2>
+                <p>प्रश्नों का अभ्यास करें और हर प्रश्न के बाद तुरंत उत्तर और व्याख्या देखें।</p>
+            </a>
+
+            <div class="mode-card" id="test-mode-card">
+                <div class="icon-container test">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h2>टेस्ट मोड</h2>
+                <p>वास्तविक परीक्षा का अनुभव करें। परिणाम और नेगेटिव मार्किंग अंत में लागू होंगे।</p>
+            </div>
+        </main>
+        
+        <div id="test-options" class="hidden">
+             <h4><i class="fas fa-calculator"></i> नेगेटिव मार्किंग सेटिंग्स</h4>
+             <label>
+                 <input type="checkbox" id="enable-negative-marking">
+                 <span>नेगेटिव मार्किंग लागू करें</span>
+             </label>
+             <select id="negative-marking-value" disabled>
+                 <option value="0.3333">1/3 अंक</option>
+                 <option value="0.25">1/4 अंक</option>
+                 <option value="0.50">1/2 अंक</option>
+             </select>
+             <a href="#" id="start-test-btn" class="start-button">टेस्ट शुरू करें</a>
+        </div>
+
+    </div>
+
+    <script>
+        const testModeCard = document.getElementById('test-mode-card');
+        const testOptionsDiv = document.getElementById('test-options');
+        const startTestBtn = document.getElementById('start-test-btn');
+        const enableNegativeCheckbox = document.getElementById('enable-negative-marking');
+        const negativeValueSelect = document.getElementById('negative-marking-value');
+
+        testModeCard.addEventListener('click', () => {
+            testOptionsDiv.classList.remove('hidden');
+        });
+        
+        enableNegativeCheckbox.addEventListener('change', () => {
+            negativeValueSelect.disabled = !enableNegativeCheckbox.checked;
+        });
+
+        startTestBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isNegativeEnabled = enableNegativeCheckbox.checked;
+            const negativeValue = negativeValueSelect.value;
+            
+            let url = `quiz.html?mode=test`;
+            if (isNegativeEnabled) {
+                url += `&negativeMarking=true&value=${negativeValue}`;
+            }
+            window.location.href = url;
+        });
+    </script>
+</body>
+</html>

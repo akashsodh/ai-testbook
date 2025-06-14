@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raj. History, Arts & Culture Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="toggle-btn" onclick="toggleSidebar()"><span></span><span></span><span></span></div>
+  
+  <div class="sidebar" id="sidebar">
+    <div class="tools-section">
+      <h2><i class="fas fa-tools"></i> Tools</h2>
+      <div class="font-size-controls">
+        <button onclick="changeFontSize(-2)">A-</button>
+        <button onclick="changeFontSize(0)">A</button>
+        <button onclick="changeFontSize(2)">A+</button>
+      </div>
+      <div class="category-filter">
+        <label for="categorySelect"><i class="fas fa-filter"></i> विषय चुनें:</label>
+        <select id="categorySelect" onchange="filterQuestionsByCategory(this.value)">
+          <option value="">सभी विषय</option>
+        </select>
+        <button class="button" onclick="showAllCategories()">सभी विषय दिखाएँ</button>
+      </div>
+      <button class="button" onclick="shuffleQuestions()"><i class="fas fa-random"></i> Shuffle Questions</button>
+      <button class="button" onclick="showBookmarkedQuestions()"><i class="fas fa-bookmark"></i> Show Bookmarked</button>
+      <button class="button theme-btn" onclick="toggleTheme()"><i class="fas fa-adjust"></i> Toggle Theme</button>
+      <button class="button fullscreen-btn" onclick="toggleFullscreen()"><i class="fas fa-expand-arrows-alt"></i> Fullscreen</button>
+      <button class="button clear-data-btn" onclick="clearSavedData()"><i class="fas fa-trash-alt"></i> Clear Data</button>
+    </div>
+    
+    <h2>Questions</h2>
+    <table id="questionTable"></table>
+  </div>
+
+  <div class="quiz-container">
+    <div class="quiz-header-controls"> 
+        <div class="progress-bar-container"> 
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+            <span class="progress-text" id="progressBarText">0%</span> 
+        </div>
+    </div>
+    <div id="quiz-content"></div>
+    <div class="time-tracking" id="time-tracking">Time: 0 Second</div>
+    <div class="navigation">
+      <button onclick="prevQuestion()"><i class="fas fa-arrow-left"></i><span>पिछला</span></button>
+      <button id="bookmarkBtn" onclick="toggleBookmark()"><i class="far fa-bookmark"></i></button>
+      <button onclick="nextQuestion()"><span>अगला</span><i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div id="result" style="display: none;"></div>
+    <div id="score-summary">सही उत्तर: 0 | गलत उत्तर: 0</div>
+    <button id="submitTestBtn" onclick="submitTest()">टेस्ट सबमिट करें</button>
+    <div id="completion-message"></div>
+  </div>
+
+<script>
+// =============================================================
+// ===                 ग्लोबल वेरिएबल्स                      ===
+// =============================================================
+const UNIT_ID = "unit101";
+let originalQuestions = [];
+let questions = [];
+let answers = {};
+let bookmarkedQuestions = [];
+let questionTimes = {};
+let current = 0;
+
+// --- URL और localStorage से सेटिंग्स प्राप्त करना ---
+const urlParams = new URLSearchParams(window.location.search);
+const quizMode = urlParams.get('mode') || 'practice';
+const isNegativeMarkingEnabled = urlParams.get('negativeMarking') === 'true';
+const negativeMarkingValue = parseFloat(urlParams.get('value')) || 0.3333;
+let isTestSubmitted = false;
+
+let currentFontSize = 20;
+let currentQuestionStartTime = null;
+let timerInterval = null;
+let selectedCategory = "";
+
+// =============================================================
+// ===                 मुख्य फंक्शंस                       ===
+// =============================================================
+
+async function initializeQuiz() {
+    try {
+        const response = await fetch('questions.json');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        originalQuestions = await response.json();
+        
+        // localStorage से डेटा लोड करें
+        answers = JSON.parse(localStorage.getItem(UNIT_ID + "_quizAnswers")) || {};
+        bookmarkedQuestions = JSON.parse(localStorage.getItem(UNIT_ID + "_bookmarkedQuestions")) || [];
+        currentFontSize = parseFloat(localStorage.getItem(UNIT_ID + "_quizFontSize")) || 20;
+        selectedCategory = localStorage.getItem(UNIT_ID + "_selectedCategory") || "";
+        isTestSubmitted = JSON.parse(localStorage.getItem(UNIT_ID + '_isTestSubmitted')) || false;
+
+        populateCategoryFilter();
+        filterAndLoad();
+
+        if (quizMode === 'test' && isTestSubmitted) {
+            submitTest(true);
+        }
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        document.getElementById("quiz-content").innerHTML = `<p style="color: red;">प्रश्नों को लोड करने में त्रुटि हुई।</p>`;
+    }
+}
+
+function filterAndLoad() {
+    document.getElementById('categorySelect').value = selectedCategory;
+    questions = selectedCategory ? originalQuestions.filter(q => q.category === selectedCategory) : [...originalQuestions];
+    
+    const savedIndex = localStorage.getItem(UNIT_ID + "_currentQuestion");
+    current = (savedIndex !== null && parseInt(savedIndex) < questions.length) ? parseInt(savedIndex) : 0;
+    
+    loadQuestion(current);
+    buildSidebarLinks();
+}
+
+function loadQuestion(index) {
+    if (index < 0 || index >= questions.length) return;
+    
+    if (quizMode === 'practice' && timerInterval) stopTimer();
+    
+    current = index;
+    localStorage.setItem(UNIT_ID + "_currentQuestion", current);
+
+    const q = questions[current];
+    const originalQuestionIndex = originalQuestions.findIndex(oq => oq.question === q.question);
+
+    let html = `<div class='question' id='current-question-text'>Q${current + 1}. ${q.question}</div>`;
+    q.options.forEach((opt, displayedIdx) => {
+        const isSelected = answers[originalQuestionIndex] == displayedIdx;
+        const isDisabled = (quizMode === 'test' && isTestSubmitted) || (quizMode === 'practice' && answers[originalQuestionIndex] !== undefined);
+        html += `<label id='opt${displayedIdx}'><input type='radio' name='q${originalQuestionIndex}' value='${displayedIdx}' ${isSelected ? "checked" : ""} ${isDisabled ? "disabled" : ""} onclick='selectAnswer(${originalQuestionIndex}, ${displayedIdx})'> ${opt}</label>`;
+    });
+    html += `<div class='correct-answer' id='correct'></div><div class='explanation' id='explanation-text' style='display: none;'></div>`;
+    
+    document.getElementById("quiz-content").innerHTML = html;
+    
+    if ((quizMode === 'practice' || isTestSubmitted) && answers[originalQuestionIndex] !== undefined) {
+        showAnswerAndExplanation(originalQuestionIndex);
+    }
+
+    updateUI();
+    if (quizMode === 'practice') startTimer();
+}
+
+function selectAnswer(qOriginalIdx, selectedOptionIdx) {
+    if ((quizMode === 'test' && isTestSubmitted) || (quizMode === 'practice' && answers[qOriginalIdx] !== undefined)) return;
+
+    answers[qOriginalIdx] = selectedOptionIdx;
+    localStorage.setItem(UNIT_ID + "_quizAnswers", JSON.stringify(answers));
+
+    if (quizMode === 'practice') {
+        stopTimer();
+        showAnswerAndExplanation(qOriginalIdx);
+    } else {
+        document.querySelectorAll(`input[name='q${qOriginalIdx}']`).forEach(radio => {
+             const label = radio.parentElement;
+             if (radio.value == selectedOptionIdx) {
+                label.style.border = "2px solid #667eea";
+             } else {
+                label.style.border = "";
+             }
+        });
+    }
+    updateUI();
+}
+
+function submitTest(isSilent = false) {
+    if (!isSilent && !confirm("क्या आप वाकई टेस्ट सबमिट करना चाहते हैं?")) return;
+
+    isTestSubmitted = true;
+    localStorage.setItem(UNIT_ID + '_isTestSubmitted', JSON.stringify(isTestSubmitted));
+
+    let correctCount = 0, wrongCount = 0, unansweredCount = 0;
+    questions.forEach(q => {
+        const originalIndex = originalQuestions.findIndex(oq => oq.question === q.question);
+        if (answers[originalIndex] === undefined) unansweredCount++;
+        else if (answers[originalIndex] == q.answer) correctCount++;
+        else wrongCount++;
+    });
+
+    const finalScore = correctCount - (isNegativeMarkingEnabled ? (wrongCount * negativeMarkingValue) : 0);
+    const total = questions.length;
+    const percentage = total > 0 ? (correctCount / total * 100).toFixed(2) : 0;
+
+    const resultHTML = `<h3>टेस्ट का परिणाम</h3>
+        <p>कुल प्रश्न: ${total}</p>
+        <p style="color: green;">सही: ${correctCount}</p>
+        <p style="color: red;">गलत: ${wrongCount}</p>
+        <p>छोड़े गए: ${unansweredCount}</p>
+        <b>अंतिम स्कोर: ${finalScore.toFixed(2)}</b><br>
+        <b>प्रतिशत: ${percentage}%</b>`;
+    
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = resultHTML;
+    document.getElementById('submitTestBtn').style.display = 'none';
+
+    if (!isSilent) alert("टेस्ट सबमिट हो गया है! अब आप अपने उत्तरों की समीक्षा कर सकते हैं।");
+    loadQuestion(current);
+}
+
+function clearSavedData() {
+    if (confirm("क्या आप वाकई सभी सहेजे गए डेटा को क्लियर करना चाहते हैं?")) {
+        Object.keys(localStorage).forEach(key => (key.startsWith(UNIT_ID) || key === 'theme') && localStorage.removeItem(key));
+        alert("डेटा क्लियर कर दिया गया है। होम पेज पर वापस जा रहे हैं।");
+        window.location.href = 'index.html';
+    }
+}
+
+// =============================================================
+// ===                 सहायक फंक्शंस (Helpers)               ===
+// =============================================================
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
+    sidebar.classList.toggle("hidden");
+    body.classList.toggle("sidebar-visible");
+
+    if (window.innerWidth > 768) {
+        body.style.paddingLeft = sidebar.classList.contains('hidden') ? '20px' : '240px';
+    }
+}
+
+function updateUI() {
+    applyFontSize();
+    updateSidebarHighlight();
+    updateScoreSummary();
+    updateProgress();
+    updateBookmarkButton();
+    document.getElementById('time-tracking').style.display = (quizMode === 'practice' || isTestSubmitted) ? 'block' : 'none';
+    document.getElementById('submitTestBtn').style.display = (quizMode === 'test' && !isTestSubmitted) ? 'block' : 'none';
+    document.getElementById("result").style.display = (quizMode === 'test' && isTestSubmitted) ? 'block' : 'none';
+}
+
+function showAnswerAndExplanation(qOriginalIdx) {
+    const q = originalQuestions[qOriginalIdx];
+    document.querySelectorAll(`input[name='q${qOriginalIdx}']`).forEach(radio => {
+        const label = radio.parentElement;
+        if (radio.value == q.answer) label.classList.add("correct");
+        else if (radio.value == answers[qOriginalIdx]) label.classList.add("incorrect");
+        radio.disabled = true;
+    });
+    document.getElementById("correct").innerHTML = `<strong>सही उत्तर:</strong> ${q.options[q.answer]}`;
+    const expDiv = document.getElementById("explanation-text");
+    expDiv.innerHTML = q.explanation ? `<strong>व्याख्या:</strong> ${q.explanation}` : "";
+    expDiv.style.display = q.explanation ? "block" : "none";
+}
+
+function nextQuestion() { if (current < questions.length - 1) loadQuestion(current + 1); }
+function prevQuestion() { if (current > 0) loadQuestion(current - 1); }
+
+function updateSidebarHighlight() {
+    document.querySelectorAll("#questionTable a").forEach((link, sidebarLinkIndex) => {
+        link.className = '';
+        if (sidebarLinkIndex >= questions.length) return;
+        const q = questions[sidebarLinkIndex];
+        const originalQuestionIndex = originalQuestions.findIndex(oq => oq.question === q.question);
+        if (originalQuestionIndex === -1) return;
+
+        if (sidebarLinkIndex === current) link.classList.add("active");
+        else if (answers[originalQuestionIndex] !== undefined) {
+            if (quizMode === 'practice' || isTestSubmitted) {
+                link.classList.add(answers[originalQuestionIndex] == q.answer ? "correct" : "incorrect");
+            } else { link.classList.add("attempted"); }
+        } else { link.classList.add("unanswered"); }
+        if (bookmarkedQuestions.includes(originalQuestionIndex)) link.classList.add("bookmarked");
+    });
+}
+
+function toggleBookmark() {
+    const originalIndex = originalQuestions.findIndex(q => q.question === questions[current].question);
+    const indexInBookmarks = bookmarkedQuestions.indexOf(originalIndex);
+    if (indexInBookmarks > -1) bookmarkedQuestions.splice(indexInBookmarks, 1);
+    else bookmarkedQuestions.push(originalIndex);
+    localStorage.setItem(UNIT_ID + "_bookmarkedQuestions", JSON.stringify(bookmarkedQuestions));
+    updateUI();
+}
+
+function updateBookmarkButton() {
+    const originalIndex = originalQuestions.findIndex(q => q.question === questions[current].question);
+    const icon = document.getElementById('bookmarkBtn').querySelector('i');
+    icon.classList.toggle('fas', bookmarkedQuestions.includes(originalIndex));
+    icon.classList.toggle('far', !bookmarkedQuestions.includes(originalIndex));
+}
+
+function showBookmarkedQuestions() {
+    if (bookmarkedQuestions.length === 0) return alert("कोई प्रश्न बुकमार्क नहीं किया गया है।");
+    let bookmarked = bookmarkedQuestions.map(index => originalQuestions[index]).filter(Boolean);
+    questions = selectedCategory ? bookmarked.filter(q => q.category === selectedCategory) : bookmarked;
+    alert(`Showing ${questions.length} bookmarked questions.`);
+    loadQuestion(0);
+    buildSidebarLinks();
+}
+
+function populateCategoryFilter() {
+    const categorySelect = document.getElementById('categorySelect');
+    const categories = [...new Set(originalQuestions.map(q => q.category).filter(Boolean))];
+    categorySelect.innerHTML = '<option value="">सभी विषय</option>';
+    categories.sort().forEach(category => {
+        categorySelect.innerHTML += `<option value="${category}">${category}</option>`;
+    });
+}
+
+function filterQuestionsByCategory(category) {
+    localStorage.setItem(UNIT_ID + "_selectedCategory", category);
+    localStorage.removeItem(UNIT_ID + '_isTestSubmitted');
+    localStorage.removeItem(UNIT_ID + "_quizAnswers");
+    answers = {};
+    isTestSubmitted = false;
+    filterAndLoad();
+}
+
+function showAllCategories() { filterQuestionsByCategory(""); }
+
+function buildSidebarLinks() {
+    const table = document.getElementById("questionTable");
+    table.innerHTML = "";
+    for (let i = 0; i < questions.length; i += 5) {
+        const row = document.createElement("tr");
+        for (let j = i; j < i + 5 && j < questions.length; j++) {
+            const cell = document.createElement("td");
+            const a = document.createElement("a");
+            a.href = "#";
+            a.textContent = `${j + 1}`;
+            a.onclick = ((idx) => () => { loadQuestion(idx); return false; })(j);
+            cell.appendChild(a);
+            row.appendChild(cell);
+        }
+        table.appendChild(row);
+    }
+    updateSidebarHighlight();
+}
+
+function updateProgress() {
+    const total = questions.length;
+    const answeredCount = Object.keys(answers).filter(key => questions.some(q => originalQuestions[key] && originalQuestions[key].question === q.question)).length;
+    const percentage = total > 0 ? (answeredCount / total * 100) : 0;
+    document.getElementById("progressBarFill").style.width = percentage + "%";
+    document.getElementById("progressBarText").innerText = `${answeredCount}/${total}`;
+}
+
+function updateScoreSummary() {
+    let correct = 0, wrong = 0;
+    Object.keys(answers).forEach(qIndex => {
+        if(originalQuestions[qIndex]){
+            if (answers[qIndex] == originalQuestions[qIndex].answer) correct++;
+            else wrong++;
+        }
+    });
+    document.getElementById("score-summary").innerText = `सही: ${correct} | गलत: ${wrong}`;
+}
+
+function startTimer() {
+    stopTimer();
+    currentQuestionStartTime = Date.now();
+    timerInterval = setInterval(() => {
+        document.getElementById("time-tracking").innerText = `समय: ${Math.floor((Date.now() - currentQuestionStartTime)/1000)} सेकंड`;
+    }, 1000);
+}
+
+function stopTimer() {
+    if(!timerInterval) return;
+    clearInterval(timerInterval);
+    const originalQuestionIndex = originalQuestions.findIndex(oq => oq.question === questions[current].question);
+    const elapsed = Math.floor((Date.now() - currentQuestionStartTime) / 1000);
+    if(originalQuestionIndex !== -1) {
+        questionTimes[originalQuestionIndex] = (questionTimes[originalQuestionIndex] || 0) + elapsed;
+        localStorage.setItem(UNIT_ID + "_questionTimes", JSON.stringify(questionTimes));
+    }
+}
+
+function applyFontSize() { 
+    const qText = document.getElementById("current-question-text");
+    if(qText) qText.style.fontSize = currentFontSize + "px";
+    document.querySelectorAll("#quiz-content label").forEach(label => label.style.fontSize = (currentFontSize * 0.9) + "px");
+}
+
+function changeFontSize(change) {
+    currentFontSize = (change === 0) ? 20 : Math.max(14, Math.min(30, currentFontSize + change));
+    localStorage.setItem(UNIT_ID + "_quizFontSize", currentFontSize);
+    applyFontSize();
+}
+
+function shuffleQuestions() {
+    questions.sort(() => Math.random() - 0.5);
+    isTestSubmitted = false;
+    answers = {};
+    localStorage.removeItem(UNIT_ID + "_quizAnswers");
+    localStorage.removeItem(UNIT_ID + "_isTestSubmitted");
+    alert("प्रश्नों को शफ़ल कर दिया गया है। आपकी प्रगति रीसेट हो गई है।");
+    loadQuestion(0);
+    buildSidebarLinks();
+}
+
+function toggleTheme() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.error(err));
+    } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+}
+
+// =============================================================
+// ===                 पेज लोड और इवेंट्स                    ===
+// =============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeQuiz();
+    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "ArrowRight") nextQuestion();
+      else if (e.key === "ArrowLeft") prevQuestion();
+    });
+});
+</script>
+</body>
+</html>

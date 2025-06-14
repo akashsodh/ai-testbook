@@ -1,0 +1,254 @@
+/* ============================================================= */
+/* ===                  बेसिक और लेआउट स्टाइल                 === */
+/* ============================================================= */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f7f6;
+    margin: 0;
+    padding-left: 20px;
+    color: #333;
+    transition: padding-left 0.3s ease;
+}
+
+.quiz-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* ============================================================= */
+/* ===                      साइडबार स्टाइल                     === */
+/* ============================================================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100%;
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+    padding: 20px 10px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+.sidebar.hidden { transform: translateX(-260px); }
+
+.toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 30px;
+    height: 22px;
+    cursor: pointer;
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.toggle-btn span { display: block; height: 4px; background: #333; border-radius: 2px; }
+
+.sidebar h2 { color: #fff; text-align: center; font-size: 1.2em; }
+
+/* प्रश्न नेविगेशन टेबल */
+.sidebar table {
+    table-layout: fixed;
+    width: 100%;
+    border-spacing: 4px;
+    margin-bottom: 20px;
+}
+.sidebar td a {
+    display: block;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 2px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+}
+.sidebar td a:hover { background: rgba(255, 255, 255, 0.4); }
+.sidebar td a.correct { background: #a5d6a7 !important; color: #1b5e20 !important; }
+.sidebar td a.incorrect { background: #ef9a9a !important; color: #b71c1c !important; }
+.sidebar td a.active { background: #ffd166 !important; color: #000 !important; }
+.sidebar td a.unanswered { opacity: 0.7; }
+.sidebar td a.bookmarked { border: 2px solid #ffd166; padding: 6px 0px; }
+.sidebar td a.attempted { background: #a9dff3 !important; color: #0c5460 !important; }
+
+/* ============================================================= */
+/* ===              साइडबार टूल्स सेक्शन की स्टाइल              === */
+/* ============================================================= */
+
+.tools-section {
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+/* सॉफ्ट UI बटन (Shuffle, Theme, etc.) */
+.tools-section .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 90%;
+    margin: 12px auto;
+    padding: 10px;
+    background: linear-gradient(145deg, #7b5cb3, #684ca0);
+    border-radius: 10px;
+    border: none;
+    box-shadow: 4px 4px 8px #5f4494, -4px -4px 8px #855ec4;
+    color: #e0e0e0;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9em;
+    text-transform: none;
+    transition: all 0.2s ease;
+}
+.tools-section .button:hover { color: #fff; transform: translateY(-2px); }
+.tools-section .button:active { box-shadow: inset 4px 4px 8px #5f4494, inset -4px -4px 8px #855ec4; transform: translateY(0); }
+.tools-section .button i { font-size: 1.1em; }
+
+/* "डेटा साफ़ करें" बटन */
+.tools-section .clear-data-btn {
+    background: linear-gradient(145deg, #e53935, #c2302c);
+    box-shadow: 4px 4px 8px #b02a27, -4px -4px 8px #f8423f;
+}
+
+/* फॉन्ट-साइज़ कंट्रोल्स */
+.font-size-controls { margin-bottom: 15px; }
+.font-size-controls button {
+    display: inline-block;
+    width: auto;
+    padding: 6px 12px;
+    margin: 0 5px;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.font-size-controls button:hover { background: rgba(255,255,255,0.2); }
+
+/* श्रेणी फ़िल्टर */
+.category-filter { margin-top: 20px; }
+.category-filter label { background: none; padding: 0; margin-bottom: 8px; cursor: default; text-align: center; font-weight: 600; color: #fff; }
+.category-filter select { width: 90%; margin: 0 auto 10px auto; display: block; padding: 8px; border-radius: 5px; }
+.category-filter button {
+    background: none;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    width: auto;
+    padding: 6px 14px;
+    font-size: 0.85em;
+}
+
+/* ============================================================= */
+/* ===                  क्विज़ कंटेंट स्टाइल                  === */
+/* ============================================================= */
+
+.quiz-header-controls { margin-bottom: 20px; }
+.progress-bar-container { width: 100%; height: 12px; background-color: #e0e0e0; border-radius: 6px; position: relative; }
+.progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(to right, #4CAF50, #8BC34A); border-radius: 6px; transition: width 0.5s ease-in-out; }
+.progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333; font-size: 0.8em; font-weight: bold; }
+
+.question { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+label { display: block; background: #f1f1f1; padding: 12px 18px; margin: 10px 0; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+label:hover { background: #e9ecef; }
+label.correct { background: #d4edda; border-color: #155724; }
+label.incorrect { background: #f8d7da; border-color: #721c24; }
+.correct-answer { margin-top: 15px; font-weight: 600; color: #155724; }
+.explanation { margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-left: 4px solid #764ba2; }
+
+#score-summary, #completion-message, #result { text-align: center; margin-top: 20px; font-size: 1.1em; font-weight: bold; }
+#result { border-top: 1px solid #eee; padding-top: 20px; }
+
+/* ============================================================= */
+/* ===                      नेविगेशन स्टाइल                    === */
+/* ============================================================= */
+
+.navigation { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
+.navigation button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    color: #333;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.navigation button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.navigation button:last-child { flex-direction: row-reverse; }
+
+#bookmarkBtn { background: transparent; border: none; flex-grow: 0; padding: 10px; }
+#bookmarkBtn:hover { transform: scale(1.1); box-shadow: none; }
+#bookmarkBtn i { font-size: 1.8rem; color: #f59f00; transition: all 0.2s ease; }
+#bookmarkBtn i.fas { color: #e08e00; }
+
+#submitTestBtn {
+    display: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(to right, #28a745, #218838);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 20px auto;
+}
+#submitTestBtn:hover { background: linear-gradient(to right, #218838, #28a745); }
+
+/* ============================================================= */
+/* ===                       डार्क मोड                         === */
+/* ============================================================= */
+body.dark { background: #121212; color: #e0e0e0; }
+body.dark .quiz-container { background: #1e1e1e; }
+body.dark .toggle-btn span { background: #fff; }
+body.dark label { background: #333; }
+body.dark label.correct { background: #285b30; }
+body.dark label.incorrect { background: #6c2e33; }
+body.dark .sidebar { background: #2c3e50; }
+body.dark .explanation { background-color: #2a2a2a; border-left-color: #9b70e0; }
+body.dark .progress-bar-container { background-color: #444; }
+body.dark .navigation button { background: #333; color: #e0e0e0; border-color: #555; }
+body.dark #bookmarkBtn i { color: #ffd166; }
+body.dark #bookmarkBtn i.fas { color: #f59f00; }
+
+/* ============================================================= */
+/* ===                     रिस्पॉन्सिव डिज़ाइन                  === */
+/* ============================================================= */
+@media (max-width: 768px) {
+  body { padding-left: 0; }
+  .quiz-container { margin: 60px 10px 85px 10px; padding: 20px; }
+  .sidebar { transform: translateX(-260px); }
+  body.sidebar-visible .sidebar { transform: translateX(0); }
+  
+  .navigation {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px;
+      margin-top: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  body.dark .navigation {
+      background-color: rgba(20, 20, 20, 0.8);
+      border-top-color: rgba(255, 255, 255, 0.1);
+  }
+}
