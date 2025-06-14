@@ -310,14 +310,18 @@ function populateCategoryFilter() {
 }
 
 function filterQuestionsByCategory(category) {
+    selectedCategory = category; // --- यही वह लाइन है जो छूट गई थी ---
     localStorage.setItem(UNIT_ID + "_selectedCategory", category);
+    
+    // विषय बदलते समय क्विज़ की प्रगति और स्थिति रीसेट करें
+    isTestSubmitted = false; 
+    answers = {};
     localStorage.removeItem(UNIT_ID + '_isTestSubmitted');
     localStorage.removeItem(UNIT_ID + "_quizAnswers");
-    answers = {};
-    isTestSubmitted = false;
+    
+    // नए फ़िल्टर किए गए प्रश्नों को लोड करें
     filterAndLoad();
 }
-
 function showAllCategories() { filterQuestionsByCategory(""); }
 
 function buildSidebarLinks() {
